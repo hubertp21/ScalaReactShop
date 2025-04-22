@@ -1,0 +1,22 @@
+# Node modules (frontend)
+frontend/node_modules
+frontend/build
+frontend/dist
+
+# IntelliJ / VSCode
+.idea
+.vscode
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Scala / SBT
+backend/target
+backend/project/project
+backend/project/target
+backend/.bsp
+backend/.metals
+
+# Logs
+*.log
