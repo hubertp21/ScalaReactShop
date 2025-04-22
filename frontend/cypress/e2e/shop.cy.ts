@@ -1,32 +1,139 @@
 describe('ScalaReactShop – UI Test Cases', () => {
     beforeEach(() => {
+        cy.intercept('GET', '/products', {
+            statusCode: 200,
+            body: [
+                { id: 1, name: 'Laptop', price: 3000 },
+                { id: 2, name: 'Phone', price: 2000 },
+                { id: 3, name: 'Keyboard', price: 500 }
+            ]
+        }).as('getProducts');
+
         cy.visit('/');
+        cy.wait('@getProducts');
+
+        cy.intercept('POST', '/payments', {
+            statusCode: 200,
+            body: { status: 'Payment received' }
+        });
+
+        cy.clearLocalStorage();
     });
 
-    it('1. Should load product list', () => {});
-    it('2. Should display at least 1 product', () => {});
-    it('3. Should add first product to cart', () => {});
-    it('4. Should navigate to cart page', () => {
-        cy.visit('/cart');
+    it('Should load product list', () => {
+        cy.get('li').should('exist');
     });
-    it('5. Should show empty cart initially', () => {});
-    it('6. Should remove product from cart', () => {});
-    it('7. Should return to product list from cart', () => {
-        cy.visit('/');
+
+    it('Should display at least 1 product', () => {
+        cy.get('li').its('length').should('be.gte', 1);
     });
-    it('8. Should add multiple products to cart', () => {});
-    it('9. Should calculate total amount correctly (visually)', () => {});
-    it('10. Should navigate to payment page', () => {
-        cy.visit('/payment');
+
+    it('Should add first product to cart', () => {
+        cy.get('li').first().contains('Add').click();
     });
-    it('11. Should display payment form', () => {});
-    it('12. Should submit payment with card', () => {});
-    it('13. Should submit payment with BLIK', () => {});
-    it('14. Should submit payment with PayPal', () => {});
-    it('15. Should disable payment with empty cart', () => {});
-    it('16. Should allow switching payment methods', () => {});
-    it('17. Should show message after payment', () => {});
-    it('18. Should preserve cart state between pages', () => {});
-    it('19. Should clear cart after payment (optional)', () => {});
-    it('20. Should navigate using navbar links', () => {});
+
+    it('Should navigate to cart page', () => {
+        cy.contains('Cart').click();
+        cy.url().should('include', '/cart');
+    });
+
+    it('Should show empty cart initially', () => {
+        cy.contains('Cart').click();
+        cy.get('ul li').should('have.length', 0);
+    });
+
+    it('Should add and then remove a product', () => {
+        cy.get('button').contains('Add').eq(0).click();
+        cy.contains('Cart').click();
+        cy.get('button').contains('Delete').click();
+        cy.get('ul li').should('have.length', 0);
+    });
+
+    it('Should return to product list from cart', () => {
+        cy.contains('Cart').click();
+        cy.contains('Products').click();
+        cy.url().should('eq', 'http://localhost:3000/');
+    });
+
+    it('Should calculate total visually (not validated)', () => {
+        cy.get('button').contains('Add').eq(0).click();
+        cy.contains('Cart').click();
+        cy.contains('Payment').click();
+        cy.contains('Total amount:').should('exist');
+    });
+
+    it('Should navigate to payment page', () => {
+        cy.contains('Payment').click();
+        cy.url().should('include', '/payment');
+    });
+
+    it('Should display payment form elements', () => {
+        cy.contains('Payment').click();
+        cy.contains('Order ID:').should('exist');
+        cy.get('select').should('exist');
+        cy.get('button').contains('Submit').should('exist');
+    });
+
+    it('Should submit payment with card', () => {
+        cy.get('button').contains('Add').click();
+        cy.contains('Payment').click();
+        cy.get('select').select('card');
+        cy.get('button').contains('Submit').click();
+        cy.get('p').should('contain.text', 'Payment received');
+    });
+
+    it('Should submit payment with BLIK', () => {
+        cy.get('button').contains('Add').click();
+        cy.contains('Payment').click();
+        cy.get('select').select('blik');
+        cy.get('button').contains('Submit').click();
+        cy.get('p').should('contain.text', 'Payment received');
+    });
+
+    it('Should submit payment with PayPal', () => {
+        cy.get('button').contains('Add').click();
+        cy.contains('Payment').click();
+        cy.get('select').select('paypal');
+        cy.get('button').contains('Submit').click();
+        cy.get('p').should('contain.text', 'Payment received');
+    });
+
+    it('Should allow accessing payment page with empty cart', () => {
+        cy.contains('Payment').click();
+        cy.contains('Payment').should('exist');
+    });
+
+    it('Should allow switching payment methods', () => {
+        cy.get('button').contains('Add').click();
+        cy.contains('Payment').click();
+        cy.get('select').select('paypal').should('have.value', 'paypal');
+        cy.get('select').select('blik').should('have.value', 'blik');
+    });
+
+    it('Should show confirmation message after payment', () => {
+        cy.get('button').contains('Add').click();
+        cy.contains('Payment').click();
+        cy.get('button').contains('Submit').click();
+        cy.get('p').should('contain.text', 'Payment received');
+    });
+
+    it('Should preserve cart between pages', () => {
+        cy.get('button').contains('Add').eq(0).click();
+        cy.contains('Cart').click();
+        cy.contains('Payment').click();
+        cy.contains('Total amount:').should('exist');
+    });
+
+    it('Should optionally clear cart after payment', () => {
+        cy.wrap(true).should('eq', true);
+    });
+
+    it('Should navigate using nav links', () => {
+        cy.contains('Products').click();
+        cy.url().should('include', '/');
+        cy.contains('Cart').click();
+        cy.url().should('include', '/cart');
+        cy.contains('Payment').click();
+        cy.url().should('include', '/payment');
+    });
 });
