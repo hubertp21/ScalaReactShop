@@ -3,5 +3,5 @@ projectKey=hubertp21_ScalaReactShop_backend
 serverUrl=https://sonarcloud.io
 serverVersion=8.0.0.62441
 dashboardUrl=https://sonarcloud.io/dashboard?id=hubertp21_ScalaReactShop_backend
-ceTaskId=AZZkbCbzDwXRamTncUvt
-ceTaskUrl=https://sonarcloud.io/api/ce/task?id=AZZkbCbzDwXRamTncUvt
+ceTaskId=AZZkfpq5CFdnvj-fhVG9
+ceTaskUrl=https://sonarcloud.io/api/ce/task?id=AZZkfpq5CFdnvj-fhVG9
